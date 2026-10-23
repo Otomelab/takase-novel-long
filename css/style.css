@@ -86,6 +86,9 @@ button { cursor: pointer; }
   transform: translateX(-50%) translateY(16px);
   opacity: 0;
   filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.45));
+  /* 立ち絵は腰で切れているので、下端を透明にフェードさせる */
+  -webkit-mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
   transition: opacity 0.45s ease, transform 0.45s ease;
 }
 #sprites img.on {
