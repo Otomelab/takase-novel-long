@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>店じまいの合図 — 境界の手前</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='14'%3E%E2%99%A5%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game" class="is-title">
+    <div id="bg">
+      <div id="bg-image"></div>
+      <div id="bg-shade"></div>
+    </div>
+    <div id="pulse" aria-hidden="true"></div>
+    <div id="fade" aria-hidden="true"></div>
+    <div id="sprites">
+      <img id="sprite-takase" alt="" src="assets/expressions/takase/01_真顔.png">
+      <img id="sprite-yui" alt="" src="assets/expressions/yui/training_expression_02.png">
+    </div>
+
+    <header id="top-bar">
+      <p>店じまいの合図</p>
+      <div class="tools">
+        <button id="btn-sound" type="button">BGM</button>
+        <button id="btn-auto" type="button">オート</button>
+        <button id="btn-log" type="button">ログ</button>
+      </div>
+    </header>
+
+    <div id="reason">
+      <div class="label"><span>理性</span><span id="reason-num">82</span></div>
+      <div id="reason-track"><span id="reason-fill"></span></div>
+    </div>
+    <button id="heart" type="button" aria-label="裏カルテを開く">
+      <span id="heart-icon">♥</span>
+      <span id="bpm">86</span>
+      <span class="unit">BPM</span>
+    </button>
+
+    <div id="bottom">
+      <div id="choices" hidden></div>
+      <main id="box">
+        <p id="speaker" class="is-none"></p>
+        <p id="line"></p>
+        <span id="cursor" hidden>▼</span>
+      </main>
+    </div>
+
+    <section id="log" hidden>
+      <header>
+        <p>ログ</p>
+        <button id="log-close" type="button">閉じる</button>
+      </header>
+      <div id="log-list"></div>
+    </section>
+
+    <section id="title">
+      <p class="eyebrow">最終枠・分岐する一夜</p>
+      <h1>境界の手前</h1>
+      <p class="who">高瀬 航（32） × 小野寺 由衣（29）</p>
+      <p class="rule">「客が自分の足で越えてくるまで、俺からは動かない」</p>
+      <button id="btn-start" type="button">1回目からはじめる</button>
+      <p class="hint">クリックで進む。理性が下がると、高瀬の丁寧語がタメ口に崩れる。脈が120を超えると、彼の手首を取り返す選択肢が出る。♥ は裏カルテ。</p>
+      <p id="saved-night"></p>
+      <div id="night2" class="night2">
+        <p>2回目の始まりを選ぶ</p>
+        <button type="button" data-prior="normal">店じまいの笑顔のあと</button>
+        <button type="button" data-prior="almost">寸前のあと</button>
+        <button type="button" data-prior="awkward">空いた枠のあと</button>
+      </div>
+    </section>
+
+    <section id="card" hidden>
+      <p id="card-kicker"></p>
+      <h2 id="card-name"></h2>
+      <p id="card-blurb"></p>
+      <p id="card-stats"></p>
+      <div class="row">
+        <button id="card-next" type="button" hidden>2回目へ</button>
+        <button id="card-chart" type="button">裏カルテを読む</button>
+        <button id="card-retry" type="button">もう一度</button>
+        <button id="card-title" type="button">タイトルへ</button>
+      </div>
+    </section>
+  </div>
+  <script src="js/branching.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/scenario.js"></script>
+  <script src="js/scenario2.js"></script>
+  <script src="js/engine.js"></script>
+</body>
+</html>
