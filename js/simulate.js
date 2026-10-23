@@ -137,7 +137,11 @@ var byRoute = {};
 routes.forEach(function (row) { byRoute[row.route] = row; });
 Object.keys(expected).forEach(function (route) {
   var row = byRoute[route];
-  if (!row) throw new Error('missing route ' + route);
+  if (!row) {
+    var strip = function (r) { return r.replace(/ > c_hold| > c_return/g, ''); };
+    var alt = routes.filter(function (r) { return strip(r.route) === strip(route); }).map(function (r) { return r.route + ' => ' + r.ending; });
+    throw new Error('missing route ' + route + '\n  candidates:\n  ' + alt.join('\n  '));
+  }
   if (row.ending !== expected[route]) {
     throw new Error(route + ' → ' + row.ending + ' (expected ' + expected[route] + ') ' + JSON.stringify(row));
   }
@@ -444,7 +448,7 @@ var session2 = {};
 
 var expected2 = {
   normal: {
-    's2_work > s2_stay > s2_t_light > s2_h_laugh > s2_tea_work > s2_bed > s2_soften': 'keep',
+    's2_work > s2_stay > s2_hold > s2_t_light > s2_h_laugh > s2_tea_work > s2_bed > s2_soften': 'keep',
     's2_easy > s2_name > s2_return > s2_t_light > s2_h_laugh > s2_tea_work > s2_bed > s2_soften': 'near',
     's2_quiet > s2_pull > s2_t_light > s2_h_laugh > s2_tea_work > s2_leave': 'leave'
   },
@@ -464,14 +468,18 @@ Object.keys(expected2).forEach(function (prior) {
   session2[prior].routes.forEach(function (row) { byRoute[row.route] = row; });
   Object.keys(expected2[prior]).forEach(function (route) {
     var row = byRoute[route];
-    if (!row) throw new Error('missing ' + prior + ' ' + route);
+    if (!row) {
+      var strip2 = function (r) { return r.replace(/ > s2_hold| > s2_return/g, ''); };
+      var alt2 = session2[prior].routes.filter(function (r) { return strip2(r.route) === strip2(route); }).map(function (r) { return r.route + ' => ' + r.ending; });
+      throw new Error('missing ' + prior + ' ' + route + '\n  candidates:\n  ' + alt2.join('\n  '));
+    }
     if (row.ending !== expected2[prior][route]) {
       throw new Error(prior + ' ' + route + ' → ' + row.ending + ' expected ' + expected2[prior][route] + ' ' + JSON.stringify(row));
     }
   });
 });
 
-var openNormal = transcript2('normal', ['s2_work', 's2_stay', 's2_t_light', 's2_h_laugh', 's2_tea_work', 's2_bed', 's2_soften']);
+var openNormal = transcript2('normal', ['s2_work', 's2_stay', 's2_hold', 's2_t_light', 's2_h_laugh', 's2_tea_work', 's2_bed', 's2_soften']);
 var openAlmost = transcript2('almost', ['s2_quiet', 's2_pull', 's2_t_light', 's2_h_laugh', 's2_tea_work', 's2_leave']);
 var openAwkward = transcript2('awkward', ['s2_work', 's2_stay', 's2_t_light', 's2_h_laugh', 's2_tea_work', 's2_bed', 's2_soften']);
 var nearAlmost = transcript2('almost', ['s2_easy', 's2_stay', 's2_hold', 's2_t_light', 's2_h_laugh', 's2_tea_work', 's2_ask', 's2_soften']);
@@ -501,7 +509,7 @@ if (stopNormal.indexOf('語尾と同時に離れた') < 0) throw new Error('refu
   if (openNormal.indexOf(term) < 0) throw new Error('normal session2 never names ' + term);
 });
 
-var rebuff2 = transcript2('normal', ['s2_work', 's2_stay', 's2_t_deflect', 's2_h_trust', 's2_tea_ask', 's2_bed', 's2_soften']);
+var rebuff2 = transcript2('normal', ['s2_work', 's2_stay', 's2_hold', 's2_t_deflect', 's2_h_trust', 's2_tea_ask', 's2_bed', 's2_soften']);
 if (rebuff2.indexOf('話の入口を閉めた') < 0) throw new Error('night 2 deflect does not close the door');
 if (rebuff2.indexOf('前回と同じ癖') < 0 || rebuff2.indexOf('安心します') < 0) throw new Error('night 2 habit scene lost the reassurance');
 if (rebuff2.indexOf('お茶') < 0) throw new Error('night 2 tea scene missing');

@@ -416,7 +416,7 @@
     this.reasonEl.textContent = String(state.reason);
     this.reasonFill.style.width = state.reason + '%';
     this.heartIcon.style.animationDuration = Math.max(0.35, 60 / state.bpm) + 's';
-    this.root.dataset.heat = state.reason < 45 || state.bpm >= 140 ? 'high' : state.bpm >= 115 ? 'mid' : 'low';
+    this.root.dataset.heat = state.reason < 45 || state.bpm >= 125 ? 'high' : state.bpm >= 105 ? 'mid' : 'low';
     this.root.dataset.band = Branching.speechBand(state.reason);
     this.root.classList.toggle('is-slip', !!state.slip);
     if (state.reason < this.lastReason) {

@@ -4,6 +4,11 @@
 (function () {
   var B = window.Branching || (typeof Branching !== 'undefined' ? Branching : null);
 
+  // 脈返しが開くのは、脈が高く、かつ手首を抜いていない夜だけ。
+  function pulseOpen(state) {
+    return state.bpm >= B.PULSE_BPM && !state.wristOff;
+  }
+
   function band(state) {
     return B.speechBand(state.reason);
   }
@@ -689,7 +694,7 @@
               {
                 id: 'c2_pull',
                 text: '手首を抜く。「……測らなくて、いいです」',
-                apply: { reason: 10, wall: 2, bpm: -8 },
+                apply: { reason: 10, wall: 2, bpm: -8, wristOff: 1 },
                 next: 'afterPulse'
               },
               {
@@ -1100,7 +1105,7 @@
             speaker: '',
             text: 'えくぼが、戻っている。今度は、作った笑顔じゃなかった。由衣の脈が、彼の分まで落ち着いていく。安心させたのは、今度は、由衣のほうだった。',
             goto: function (state) {
-              return state.bpm >= B.PULSE_BPM ? 'pulseGate' : 'tea';
+              return pulseOpen(state) ? 'pulseGate' : 'tea';
             }
           }
         ]
@@ -1115,7 +1120,7 @@
             speaker: '',
             text: '高瀬は何も言わない。言わないまま、自分でタオルの角を揃えた。丁寧語の礼だけが、いつもより少し深い。',
             goto: function (state) {
-              return state.bpm >= B.PULSE_BPM ? 'pulseGate' : 'tea';
+              return pulseOpen(state) ? 'pulseGate' : 'tea';
             }
           }
         ]
@@ -1137,7 +1142,7 @@
               });
             },
             goto: function (state) {
-              return state.bpm >= B.PULSE_BPM ? 'pulseGate' : 'tea';
+              return pulseOpen(state) ? 'pulseGate' : 'tea';
             }
           }
         ]
@@ -1165,7 +1170,7 @@
               });
             },
             goto: function (state) {
-              return state.bpm >= B.PULSE_BPM ? 'pulseGate' : 'tea';
+              return pulseOpen(state) ? 'pulseGate' : 'tea';
             }
           }
         ]
@@ -1189,14 +1194,14 @@
             choices: [
               {
                 id: 'c_return',
-                when: function (state) { return state.bpm >= B.PULSE_BPM; },
+                when: pulseOpen,
                 text: '彼の左手首を取る。親指を、橈骨動脈に当てる',
                 apply: { cross: 2, reason: -18, bpm: 8, pulseReturned: 1 },
                 next: 'pulseBack'
               },
               {
                 id: 'c_hold',
-                when: function (state) { return state.bpm >= B.PULSE_BPM; },
+                when: pulseOpen,
                 text: '欲しくても、自分の手は膝に戻す',
                 next: 'tea'
               }
@@ -1282,19 +1287,19 @@
               {
                 id: 'c_tea_work',
                 text: '会社の話をする。「今日の会議、また長引いたんです」',
-                apply: { cross: 1, reason: -2, bpm: -3 },
+                apply: { cross: 1, reason: -2, bpm: -9 },
                 next: 'teaWork'
               },
               {
                 id: 'c_tea_ask',
                 text: '「どうして、最終枠は誰も入れないんですか」と聞く',
-                apply: { reason: -3, bpm: 2 },
+                apply: { reason: -3, bpm: -3 },
                 next: 'teaAsk'
               },
               {
                 id: 'c_tea_quiet',
                 text: '何も言わず、湯気を見る',
-                apply: { bpm: -2 },
+                apply: { bpm: -10 },
                 next: 'teaQuiet'
               }
             ]
@@ -1398,19 +1403,19 @@
               {
                 id: 'c_rain_umbrella',
                 text: '「傘、お借りしていいですか」返しに来る口実ができる',
-                apply: { umbrella: 1, bpm: -2 },
+                apply: { umbrella: 1, bpm: -6 },
                 next: 'rainUmbrella'
               },
               {
                 id: 'c_rain_stay',
                 text: '「……止むまで、ここにいてもいいですか」',
-                apply: { rainstay: 1, cross: 1, reason: -6, bpm: 6 },
+                apply: { rainstay: 1, cross: 1, reason: -6, bpm: 3 },
                 next: 'rainStay'
               },
               {
                 id: 'c_rain_run',
                 text: '「走って帰ります」と笑って、コートを掴む',
-                apply: { rainrun: 1, wall: 1, reason: 3, bpm: -3 },
+                apply: { rainrun: 1, wall: 1, reason: 3, bpm: -8 },
                 next: 'rainRun'
               }
             ]
@@ -1558,7 +1563,7 @@
             applyFn: function (state) {
               if (state.reason < B.SLIP_REASON) {
                 state.slip = 1;
-                state.bpm = Math.min(168, state.bpm + 6);
+                state.bpm = Math.min(B.BPM_MAX, state.bpm + 6);
               }
             },
             text: function (state) {

@@ -42,13 +42,20 @@
     return state;
   }
 
+  // 脈は高いほど上がりにくい。90 までは書いた量のまま、上限に近づくほど効きが弱くなる（下限 35%）。
+  function easeUp(bpm, amount) {
+    var scale = Math.max(0.35, Math.min(1, (BPM_MAX - bpm) / (BPM_MAX - 90)));
+    return Math.round(amount * scale);
+  }
+
   function applyDelta(state, delta) {
     if (!delta) return state;
     Object.keys(delta).forEach(function (key) {
       if (FLAGS[key]) state[key] = delta[key];
+      else if (key === 'bpm' && delta[key] > 0) state.bpm += easeUp(state.bpm, delta[key]);
       else state[key] = (state[key] || 0) + delta[key];
     });
-    state.bpm = clamp(Math.round(state.bpm), 64, 168);
+    state.bpm = clamp(Math.round(state.bpm), 64, BPM_MAX);
     state.reason = clamp(Math.round(state.reason), 0, 100);
     state.cross = Math.max(0, state.cross | 0);
     state.wall = Math.max(0, state.wall | 0);
@@ -65,7 +72,9 @@
   // ベッドに入らず、理性が 70 を下回ったまま距離を置くと、次の予約は入らない。
   var FLEE_REASON = 70;
   // 由衣の脈がこの値以上のときだけ、高瀬の橈骨動脈を取り返す選択肢が出る。
-  var PULSE_BPM = 120;
+  var PULSE_BPM = 110;
+  // 運動中のときめきとして無理のない上限。これ以上は上がらない。
+  var BPM_MAX = 135;
 
   function speechBand(reason) {
     if (reason >= 80) return 'polite';
@@ -104,6 +113,7 @@
     RETURN_ALMOST: RETURN_ALMOST,
     FLEE_REASON: FLEE_REASON,
     PULSE_BPM: PULSE_BPM,
+    BPM_MAX: BPM_MAX,
     speechBand: speechBand,
     initialState: initialState,
     initialState2: initialState2,

@@ -3,6 +3,11 @@
 (function () {
   var B = window.Branching || (typeof Branching !== 'undefined' ? Branching : null);
 
+  // 脈返しが開くのは、脈が高く、かつ手首を抜いていない夜だけ。
+  function pulseOpen(state) {
+    return state.bpm >= B.PULSE_BPM && !state.wristOff;
+  }
+
   function band(state) {
     return B.speechBand(state.reason);
   }
@@ -947,7 +952,7 @@
               return '由衣は自分の手を膝へ戻した。それ以上、脈の話はしない。';
             },
             goto: function (state) {
-              return state.bpm >= B.PULSE_BPM ? 's2_pulse' : 'talk';
+              return pulseOpen(state) ? 's2_pulse' : 'talk';
             }
           }
         ]
@@ -979,7 +984,7 @@
             choices: [
               {
                 id: 's2_return',
-                when: function (state) { return state.bpm >= B.PULSE_BPM; },
+                when: pulseOpen,
                 text: choiceText(
                   '彼の左手首を取る。親指を、橈骨動脈に当てる',
                   '丁寧語のままの左手首を取る。親指を、橈骨動脈に当てる',
@@ -990,7 +995,7 @@
               },
               {
                 id: 's2_hold',
-                when: function (state) { return state.bpm >= B.PULSE_BPM; },
+                when: pulseOpen,
                 text: choiceText(
                   '欲しくても、自分の手は膝に戻す',
                   '欲しくても、丁寧な距離のまま手は膝に戻す',
@@ -1201,12 +1206,13 @@
               {
                 id: 's2_tea_work',
                 text: '仕事の話に戻して、カップに口をつける',
+                apply: { bpm: -10 },
                 next: 'invite'
               },
               {
                 id: 's2_tea_ask',
                 text: '「……もう少し、ここにいていいですか」',
-                apply: { reason: -3, cross: 1, bpm: 4 },
+                apply: { reason: -3, cross: 1, bpm: -2 },
                 next: 'invite'
               }
             ]
@@ -1290,7 +1296,7 @@
             applyFn: function (state) {
               if (state.reason < B.SLIP_REASON) {
                 state.slip = 1;
-                state.bpm = Math.min(168, state.bpm + 6);
+                state.bpm = Math.min(B.BPM_MAX, state.bpm + 6);
               }
             },
             text: function (state) { return byPrior(state, pecBook); }
