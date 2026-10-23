@@ -53,6 +53,32 @@
     return 'もうタメ口だ。由衣さん、が、由衣、まで落ちかけてる。';
   }
 
+  // 長編版の追加場面。口調は理性で四段階。丁寧=です/ます、崩れ=……、混じり=俺、タメ口=丁寧語なし。
+  var talkAsk = Q(
+    '最近のお仕事は、いかがですか。デスクの時間が長いと、肩甲骨は上がりやすいです。差し支えなければ、聞かせてください',
+    '最近の仕事は、どう？ ……デスクの時間が長いと、肩甲骨は上がりやすい。差し支えなければ、聞かせて',
+    '最近の仕事、どうだ。……デスクが長いと、肩甲骨は上がる。俺は、聞くだけでいい',
+    '最近の仕事、どうだ。デスクが長いと、肩甲骨は上がる。話したいとこだけでいい'
+  );
+  var talkRebuff = Q(
+    'わかりました。話したくなったら、いつでもどうぞ。今は、肩だけ見ています',
+    'わかった。……話したくなったら、いつでも。今は、肩だけ見てる',
+    'わかった。……話したくなったら、でいい。俺は、肩だけ見てる',
+    'わかった。話したくなったらでいい。今は、肩だけ見てる'
+  );
+  var habitSee = Q(
+    '話しているとき、右の肩が少し上がります。前回と同じ癖です。嘘をつくときではなく、我慢しているときに出ます',
+    '話してるとき、右の肩が上がる。……前回と同じ癖。嘘のときじゃなくて、我慢してるときに出る',
+    '話してるとき、右の肩が上がるんだ。……前回と同じ癖だ。俺は、我慢してるときだって知ってる',
+    '話してるとき、右の肩が上がる。前回と同じ癖だ。嘘のときじゃねえ、我慢してるときに出る'
+  );
+  var teaOffer = Q(
+    'お茶を淹れました。施術のあとは、体温が下がりやすいです。座って、少し温まってください',
+    'お茶、淹れた。……施術のあとは、体温が下がる。座って、少し温まって',
+    'お茶、淹れた。……体温が下がるから、座れ。俺は、立ってていい',
+    'お茶、淹れた。体温が下がるから、座って温まれ。俺は立ってていい'
+  );
+
   var priorName = { normal: '店じまいの笑顔', almost: '寸前', awkward: '空いた枠' };
 
   var openLine = {
@@ -921,7 +947,7 @@
               return '由衣は自分の手を膝へ戻した。それ以上、脈の話はしない。';
             },
             goto: function (state) {
-              return state.bpm >= B.PULSE_BPM ? 's2_pulse' : 'invite';
+              return state.bpm >= B.PULSE_BPM ? 's2_pulse' : 'talk';
             }
           }
         ]
@@ -970,10 +996,10 @@
                   '欲しくても、丁寧な距離のまま手は膝に戻す',
                   '欲しくても、空いた週のまま手は膝に戻す'
                 ),
-                next: 'invite'
+                next: 'talk'
               }
             ],
-            fallback: 'invite'
+            fallback: 'talk'
           }
         ]
       },
@@ -1016,7 +1042,174 @@
             face: takaseFace,
             speaker: '高瀬',
             text: function (state) { return byPrior(state, pulseBackBook); },
-            goto: 'invite'
+            goto: 'talk'
+          }
+        ]
+      },
+
+      // --- 長編版で足した場面: 会話 → 癖 → お茶。どれも枠の中の話で、越える・越えないの判定は変えない。 ---
+      talk: {
+        lines: [
+          {
+            bg: 'assets/bg_training.png',
+            chara: 'takase',
+            face: takaseFace,
+            speaker: '高瀬',
+            text: function (state) { return say(state, talkAsk); }
+          },
+          {
+            chara: 'yui',
+            face: function (state) { return priorOf(state) === 'normal' ? '微笑み' : '困り'; },
+            speaker: '由衣',
+            text: function (state) {
+              var prior = priorOf(state);
+              if (prior === 'almost') return '……仕事の締め切りが、重なってて。それと、この前のこと、考えないようにしてたら、余計に肩が上がって';
+              if (prior === 'awkward') return '……来なかった間、デスクにずっと座ってました。ここを避けたぶん、肩だけ先に壊れたみたいで';
+              return '最初に来た日のこと、思い出してました。あの日は、肩を下げる方法を探しに来たのに、今は、肩を下げてもらう時間のほうを探してる気がして';
+            },
+            choices: [
+              {
+                id: 's2_t_open',
+                text: choiceText(
+                  '来続けている理由を、少しだけ話す',
+                  '前回のあとも来た理由を、少しだけ話す',
+                  '空けてしまった理由を、少しだけ話す'
+                ),
+                apply: { reason: -3, cross: 1, bpm: 4 },
+                next: 'habit2'
+              },
+              {
+                id: 's2_t_light',
+                text: '仕事の愚痴だけ、軽く話す',
+                next: 'habit2'
+              },
+              {
+                id: 's2_t_deflect',
+                text: '「大丈夫です」と笑って、話を流す',
+                apply: { wall: 1, reason: 3, bpm: -4 },
+                next: 'talkRebuff'
+              }
+            ]
+          }
+        ]
+      },
+
+      talkRebuff: {
+        lines: [
+          {
+            bg: 'assets/bg_training.png',
+            chara: 'yui',
+            face: '困り',
+            speaker: '',
+            text: function (state) {
+              if (priorOf(state) === 'almost') return '笑ったまま、話の入口を閉めた。口調だけが、丁寧に整っていく。';
+              if (priorOf(state) === 'awkward') return '笑ったまま、また話の入口を閉めた。三週ぶんの沈黙が、一段厚くなる。';
+              return '笑ったまま、話の入口を閉めた。いつもの声なのに、そこから先へは、誰も入れない。';
+            }
+          },
+          {
+            chara: 'takase',
+            face: takaseFace,
+            speaker: '高瀬',
+            text: function (state) { return say(state, talkRebuff); }
+          },
+          {
+            chara: null,
+            speaker: '',
+            text: '高瀬は、それ以上は聞かない。手だけが、ほんの少し、由衣の背中から遠くなった。',
+            goto: 'habit2'
+          }
+        ]
+      },
+
+      habit2: {
+        lines: [
+          {
+            bg: 'assets/bg_training.png',
+            chara: 'takase',
+            face: takaseFace,
+            speaker: '高瀬',
+            text: function (state) { return say(state, habitSee); }
+          },
+          {
+            chara: 'yui',
+            face: '照れ',
+            speaker: '由衣',
+            text: function (state) {
+              if (priorOf(state) === 'almost') return '……どうして、わかるんですか。私、言ってないのに';
+              if (priorOf(state) === 'awkward') return '……三週も空けたのに。どうして、まだ覚えてるんですか';
+              return '……どうして、わかるんですか。誰にも、言ったことないのに';
+            }
+          },
+          {
+            chara: null,
+            speaker: '',
+            text: function (state) {
+              if (priorOf(state) === 'awkward') return '癖を言い当てられた。責められる覚悟をしていた肩から、ゆっくり力が抜ける。';
+              return '癖を言い当てられた。知られて困るはずのことなのに、肩から力が抜けていくのが、自分でわかる。';
+            },
+            choices: [
+              {
+                id: 's2_h_trust',
+                text: '「……見抜かれると、安心します」',
+                apply: { reason: -3, cross: 1, bpm: 3 },
+                next: 'tea2'
+              },
+              {
+                id: 's2_h_laugh',
+                text: '「プロですね」と、笑ってごまかす',
+                next: 'tea2'
+              },
+              {
+                id: 's2_h_hide',
+                text: '肩を意識して、癖を隠そうとする',
+                apply: { wall: 1, reason: 2, bpm: 2 },
+                next: 'tea2'
+              }
+            ]
+          }
+        ]
+      },
+
+      tea2: {
+        lines: [
+          {
+            bg: 'assets/bg_entrance.png',
+            chara: 'takase',
+            face: takaseFace,
+            speaker: '高瀬',
+            text: function (state) { return say(state, teaOffer); }
+          },
+          {
+            chara: null,
+            speaker: '',
+            text: function (state) {
+              if (priorOf(state) === 'almost') return '湯気の立つカップが二つ、カウンターに置かれる。距離は、前回より半歩だけ長い。';
+              if (priorOf(state) === 'awkward') return '湯気の立つカップが二つ、カウンターに置かれる。三週ぶんの空白が、間に置かれたままだ。';
+              return '湯気の立つカップが二つ、カウンターに置かれる。施術のあとの、いつもの温度の紅茶だ。';
+            }
+          },
+          {
+            chara: 'yui',
+            face: '微笑み',
+            speaker: '由衣',
+            text: function (state) {
+              if (state.pulseReturned) return '……さっきのこと、まだ指先が覚えてます。紅茶、あったかいですね';
+              return '……あったかい。ここで飲む紅茶だけ、味が違うんです。不思議ですよね';
+            },
+            choices: [
+              {
+                id: 's2_tea_work',
+                text: '仕事の話に戻して、カップに口をつける',
+                next: 'invite'
+              },
+              {
+                id: 's2_tea_ask',
+                text: '「……もう少し、ここにいていいですか」',
+                apply: { reason: -3, cross: 1, bpm: 4 },
+                next: 'invite'
+              }
+            ]
           }
         ]
       },

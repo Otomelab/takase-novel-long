@@ -444,19 +444,19 @@ var session2 = {};
 
 var expected2 = {
   normal: {
-    's2_work > s2_stay > s2_bed > s2_soften': 'keep',
-    's2_easy > s2_name > s2_return > s2_bed > s2_soften': 'near',
-    's2_quiet > s2_pull > s2_leave': 'leave'
+    's2_work > s2_stay > s2_t_light > s2_h_laugh > s2_tea_work > s2_bed > s2_soften': 'keep',
+    's2_easy > s2_name > s2_return > s2_t_light > s2_h_laugh > s2_tea_work > s2_bed > s2_soften': 'near',
+    's2_quiet > s2_pull > s2_t_light > s2_h_laugh > s2_tea_work > s2_leave': 'leave'
   },
   almost: {
-    's2_work > s2_pull > s2_bed > s2_soften': 'keep',
-    's2_easy > s2_stay > s2_hold > s2_ask > s2_soften': 'near',
-    's2_quiet > s2_pull > s2_leave': 'leave'
+    's2_work > s2_pull > s2_t_light > s2_h_laugh > s2_tea_work > s2_bed > s2_soften': 'keep',
+    's2_easy > s2_stay > s2_hold > s2_t_light > s2_h_laugh > s2_tea_work > s2_ask > s2_soften': 'near',
+    's2_quiet > s2_pull > s2_t_light > s2_h_laugh > s2_tea_work > s2_leave': 'leave'
   },
   awkward: {
-    's2_work > s2_stay > s2_bed > s2_soften': 'keep',
-    's2_easy > s2_name > s2_return > s2_bed > s2_soften': 'near',
-    's2_quiet > s2_pull > s2_leave': 'leave'
+    's2_work > s2_stay > s2_t_light > s2_h_laugh > s2_tea_work > s2_bed > s2_soften': 'keep',
+    's2_easy > s2_name > s2_return > s2_t_light > s2_h_laugh > s2_tea_work > s2_bed > s2_soften': 'near',
+    's2_quiet > s2_pull > s2_t_light > s2_h_laugh > s2_tea_work > s2_leave': 'leave'
   }
 };
 Object.keys(expected2).forEach(function (prior) {
@@ -471,11 +471,11 @@ Object.keys(expected2).forEach(function (prior) {
   });
 });
 
-var openNormal = transcript2('normal', ['s2_work', 's2_stay', 's2_bed', 's2_soften']);
-var openAlmost = transcript2('almost', ['s2_quiet', 's2_pull', 's2_leave']);
-var openAwkward = transcript2('awkward', ['s2_work', 's2_stay', 's2_bed', 's2_soften']);
-var nearAlmost = transcript2('almost', ['s2_easy', 's2_stay', 's2_hold', 's2_ask', 's2_soften']);
-var stopNormal = transcript2('normal', ['s2_easy', 's2_name', 's2_return', 's2_bed', 's2_stop']);
+var openNormal = transcript2('normal', ['s2_work', 's2_stay', 's2_t_light', 's2_h_laugh', 's2_tea_work', 's2_bed', 's2_soften']);
+var openAlmost = transcript2('almost', ['s2_quiet', 's2_pull', 's2_t_light', 's2_h_laugh', 's2_tea_work', 's2_leave']);
+var openAwkward = transcript2('awkward', ['s2_work', 's2_stay', 's2_t_light', 's2_h_laugh', 's2_tea_work', 's2_bed', 's2_soften']);
+var nearAlmost = transcript2('almost', ['s2_easy', 's2_stay', 's2_hold', 's2_t_light', 's2_h_laugh', 's2_tea_work', 's2_ask', 's2_soften']);
+var stopNormal = transcript2('normal', ['s2_easy', 's2_name', 's2_return', 's2_t_light', 's2_h_laugh', 's2_tea_work', 's2_bed', 's2_stop']);
 if (openNormal.indexOf('いつもの肩甲骨') < 0) throw new Error('normal session2 lost the familiar scapula');
 if (openNormal.indexOf('甘やかしますか') < 0) throw new Error('normal opening is not a light offer');
 if (openNormal.indexOf('由衣さんが決めてください') >= 0) throw new Error('normal opening still ends on the shared consent line');
@@ -499,6 +499,15 @@ if (nearAlmost.indexOf('照明が落ちる') < 0) throw new Error('near ending d
 if (stopNormal.indexOf('語尾と同時に離れた') < 0) throw new Error('refusal does not release the hand');
 ['肩甲骨', '小胸筋', '大円筋', '橈骨動脈'].forEach(function (term) {
   if (openNormal.indexOf(term) < 0) throw new Error('normal session2 never names ' + term);
+});
+
+var rebuff2 = transcript2('normal', ['s2_work', 's2_stay', 's2_t_deflect', 's2_h_trust', 's2_tea_ask', 's2_bed', 's2_soften']);
+if (rebuff2.indexOf('話の入口を閉めた') < 0) throw new Error('night 2 deflect does not close the door');
+if (rebuff2.indexOf('前回と同じ癖') < 0 || rebuff2.indexOf('安心します') < 0) throw new Error('night 2 habit scene lost the reassurance');
+if (rebuff2.indexOf('お茶') < 0) throw new Error('night 2 tea scene missing');
+['almost', 'awkward'].forEach(function (prior) {
+  var t = transcript2(prior, ['s2_work', 's2_pull', 's2_t_open','s2_h_hide', 's2_tea_work', 's2_leave']);
+  if (t.indexOf('湯気の立つカップ') < 0) throw new Error(prior + ' night 2 tea narration missing');
 });
 
 console.log('paths ' + routes.length);
