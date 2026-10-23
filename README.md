@@ -2,7 +2,7 @@
 
 高瀬航（32・整体師兼パーソナルトレーナー）と小野寺由衣（29・会社員）の、最終枠が二夜続くノベルです。ビルドは要りません。
 
-遊べる場所は [https://ayumisan.github.io/slot-016/](https://ayumisan.github.io/slot-016/) です。手元では `index.html` をブラウザで開いても同じゲームが動きます。
+遊べる場所は [https://otomelab.github.io/takase-novel-long/](https://otomelab.github.io/takase-novel-long/) です。手元では `index.html` をブラウザで開いても同じゲームが動きます。
 
 ## 人物
 
